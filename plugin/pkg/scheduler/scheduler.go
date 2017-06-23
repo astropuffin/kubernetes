@@ -102,7 +102,7 @@ type Config struct {
 
 	// ReEnqueuPod adds the pod back into the cache. Used when a pod fails
 	// to schedule
-	ReEnqueuePod func(*api.Pod) error
+	ReEnqueuePod func(*v1.Pod) error
 
 	// Error is called if there is an error. It is passed the pod in
 	// question, and the error
