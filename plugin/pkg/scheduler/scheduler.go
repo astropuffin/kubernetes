@@ -64,7 +64,7 @@ type Configurator interface {
 	GetPredicates(predicateKeys sets.String) (map[string]algorithm.FitPredicate, error)
 	GetHardPodAffinitySymmetricWeight() int
 	GetSchedulerName() string
-	MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.FIFO) func(pod *v1.Pod, err error)
+	MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.Priority) func(pod *v1.Pod, err error)
 
 	// Probably doesn't need to be public.  But exposed for now in case.
 	ResponsibleForPod(pod *v1.Pod) bool

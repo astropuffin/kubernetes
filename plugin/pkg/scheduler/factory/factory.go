@@ -388,7 +388,7 @@ func (f *ConfigFactory) CreateFromKeys(predicateKeys, priorityKeys sets.String, 
 	}, nil
 }
 
-func (f *ConfigFactory) reEnqueuePod(pod *api.Pod) error {
+func (f *ConfigFactory) reEnqueuePod(pod *v1.Pod) error {
 	return f.PodQueue.AddIfNotPresent(pod)
 }
 
