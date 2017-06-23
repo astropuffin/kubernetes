@@ -86,7 +86,7 @@ var (
 	_ = Queue(&Priority{}) // Priority is a Queue
 )
 
-func (p *PriorityQueue) Close() {
+func (p *Priority) Close() {
 	p.closedLock.Lock()
 	defer p.closedLock.Unlock()
 	p.closed = true
