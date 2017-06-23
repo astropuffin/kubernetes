@@ -389,7 +389,7 @@ func (f *ConfigFactory) CreateFromKeys(predicateKeys, priorityKeys sets.String, 
 }
 
 func (f *ConfigFactory) reEnqueuePod(pod *v1.Pod) error {
-	return f.PodQueue.AddIfNotPresent(pod)
+	return f.podQueue.AddIfNotPresent(pod)
 }
 
 type nodePredicateLister struct {
