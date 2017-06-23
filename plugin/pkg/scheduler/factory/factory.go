@@ -59,7 +59,7 @@ const (
 type ConfigFactory struct {
 	client clientset.Interface
 	// queue for pods that need scheduling
-	podQueue *cache.FIFO
+	podQueue *cache.Priority
 	// a means to list all known scheduled pods.
 	scheduledPodLister corelisters.PodLister
 	// a means to list all known scheduled pods and pods assumed to have been scheduled.
@@ -119,7 +119,7 @@ func NewConfigFactory(
 	c := &ConfigFactory{
 		client:                         client,
 		podLister:                      schedulerCache,
-		podQueue:                       cache.NewFIFO(cache.MetaNamespaceKeyFunc),
+		podQueue:                       cache.NewPriority(cache.MetaNamespaceKeyFunc),
 		pVLister:                       pvInformer.Lister(),
 		pVCLister:                      pvcInformer.Lister(),
 		serviceLister:                  serviceInformer.Lister(),
@@ -382,9 +382,14 @@ func (f *ConfigFactory) CreateFromKeys(predicateKeys, priorityKeys sets.String, 
 		NextPod: func() *v1.Pod {
 			return f.getNextPod()
 		},
+		ReEnqueuePod:	f.reEnqueuePod,
 		Error:          f.MakeDefaultErrorFunc(podBackoff, f.podQueue),
 		StopEverything: f.StopEverything,
 	}, nil
+}
+
+func (f *ConfigFactory) reEnqueuePod(pod *api.Pod) error {
+	return f.PodQueue.AddIfNotPresent(pod)
 }
 
 type nodePredicateLister struct {
@@ -511,7 +516,7 @@ func (factory *ConfigFactory) createAssignedNonTerminatedPodLW() *cache.ListWatc
 	return cache.NewListWatchFromClient(factory.client.Core().RESTClient(), "pods", metav1.NamespaceAll, selector)
 }
 
-func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.FIFO) func(pod *v1.Pod, err error) {
+func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.Priority) func(pod *v1.Pod, err error) {
 	return func(pod *v1.Pod, err error) {
 		if err == core.ErrNoNodesAvailable {
 			glog.V(4).Infof("Unable to schedule %v %v: no nodes are registered to the cluster; waiting", pod.Namespace, pod.Name)

@@ -33,7 +33,7 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/client-go/tools/cache"
+	"astropuffin/client-go/tools/cache"
 )
 
 // Binder knows how to write a binding.
@@ -99,6 +99,10 @@ type Config struct {
 	// a pod may take some amount of time and we don't want pods to get
 	// stale while they sit in a channel.
 	NextPod func() *v1.Pod
+
+	// ReEnqueuPod adds the pod back into the cache. Used when a pod fails
+	// to schedule
+	ReEnqueuePod func(*api.Pod) error
 
 	// Error is called if there is an error. It is passed the pod in
 	// question, and the error
@@ -166,6 +170,8 @@ func (s *Scheduler) scheduleOne() {
 			Reason:  v1.PodReasonUnschedulable,
 			Message: err.Error(),
 		})
+		s.config.ReEnqueuePod(pod)
+		time.Sleep(time.Second * 5) //this is a total hack until I can figure out how to use the backoff properly
 		return
 	}
 	metrics.SchedulingAlgorithmLatency.Observe(metrics.SinceInMicroseconds(start))
