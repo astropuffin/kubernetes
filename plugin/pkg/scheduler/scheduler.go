@@ -33,7 +33,7 @@ import (
 
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"astropuffin/client-go/tools/cache"
+	"k8s.io/client-go/tools/cache"
 )
 
 // Binder knows how to write a binding.
