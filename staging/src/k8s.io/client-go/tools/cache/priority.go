@@ -451,7 +451,15 @@ func (p *Priority) AddIfNotPresent(obj interface{}) error {
 // addIfNotPresent
 // this is the non syncronized form. It should always be called under lock
 func (p *Priority) addIfNotPresent(key string, obj interface{}) {
-
+	glog.V(4).Info("priority addIfNotPresent")
+	rateLimit, err := MetaRateLimitFunc(obj)
+	if err != nil {
+		glog.V(4).Info(err)
+	}
+	glog.V(4).Infof("ratelimited?: %v", rateLimit)
+	if rateLimit {
+		return
+	}
 	p.populated = true
 	pq := p.queue
 	//here's where the map is important...
@@ -488,6 +496,31 @@ func MetaPriorityFunc(obj interface{}) (int, error) {
 		return priority, nil
 	}
 	return -1, nil
+}
+
+const rateLimitAnnotationKey = "dronedeploy.com/rateLimit"
+
+// MetaRateLimitFunc
+// extracts the rateLimit annotation of an object.
+// defaults to false (not rate limited)
+// The object must be a pointer of a valid API type
+// TODO: make this allow non-pod objects
+func MetaRateLimitFunc(obj interface{}) (bool, error) {
+	thing, err := meta.Accessor(obj)
+	if err != nil {
+		return false, fmt.Errorf("object has no meta: %v", err)
+	}
+	annotations := thing.GetAnnotations()
+	if annotations == nil {
+		return false, fmt.Errorf("object does not have annotations")
+	}
+	if rl, ok := annotations[rateLimitAnnotationKey]; ok {
+		glog.V(4).Infof("rateLimit annotation: '%v'", p)
+		if rl == "true" {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 // There are a number of objects pulled from other files in the package. Here
