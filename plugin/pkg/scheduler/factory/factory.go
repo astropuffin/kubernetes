@@ -516,6 +516,8 @@ func (factory *ConfigFactory) createAssignedNonTerminatedPodLW() *cache.ListWatc
 	return cache.NewListWatchFromClient(factory.client.Core().RESTClient(), "pods", metav1.NamespaceAll, selector)
 }
 
+const rateLimitAnnotationKey = "dronedeploy.com/rateLimit"
+
 func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.Priority) func(pod *v1.Pod, err error) {
 	return func(pod *v1.Pod, err error) {
 		if err == core.ErrNoNodesAvailable {
@@ -544,7 +546,10 @@ func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, pod
 				pod, err := factory.client.Core().Pods(podID.Namespace).Get(podID.Name, metav1.GetOptions{})
 				if err == nil {
 					if len(pod.Spec.NodeName) == 0 {
-						podQueue.AddIfNotPresent(pod)
+						rateLimitAnnotation, exists := pod.GetAnnotations()[rateLimitAnnotationKey]
+						if rateLimitAnnotation != "true" || !exists {
+							podQueue.AddIfNotPresent(pod)
+						}
 					}
 					break
 				}
