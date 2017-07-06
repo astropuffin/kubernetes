@@ -515,7 +515,7 @@ func MetaRateLimitFunc(obj interface{}) (bool, error) {
 		return false, fmt.Errorf("object does not have annotations")
 	}
 	if rl, ok := annotations[rateLimitAnnotationKey]; ok {
-		glog.V(4).Infof("rateLimit annotation: '%v'", p)
+		glog.V(4).Infof("rateLimit annotation: '%v'", rl)
 		if rl == "true" {
 			return true, nil
 		}
