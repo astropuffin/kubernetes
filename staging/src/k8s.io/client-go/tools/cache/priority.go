@@ -408,7 +408,30 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			p.cond.Wait()
 		}
 
-		item := heap.Pop(p.queue)
+		var item interface{}
+		var rateLimitedPods []interface{}
+		//pop pods from the heap until we find one that isn't rateLimited
+		for {
+			item = heap.Pop(p.queue)
+
+			rateLimited, err := MetaRateLimitFunc(item)
+			if err != nil {
+				glog.V(4).Info(err)
+			}
+			glog.V(4).Infof("ratelimited?: %v", rateLimited)
+			if rateLimited {
+				rateLimitedPods = append(rateLimitedPods, item)
+			} else {
+				break
+			}
+		}
+
+		// add rate limited pods back into the priority queue
+		for pod, _ := range rateLimitedPods {
+			key, _ := p.keyFunc(item) //TODO: add error handling
+			p.addIfNotPresent(key, pod)
+		}
+
 		if p.initialPopulationCount > 0 {
 			p.initialPopulationCount--
 		}
@@ -451,15 +474,6 @@ func (p *Priority) AddIfNotPresent(obj interface{}) error {
 // addIfNotPresent
 // this is the non syncronized form. It should always be called under lock
 func (p *Priority) addIfNotPresent(key string, obj interface{}) {
-	glog.V(4).Info("priority addIfNotPresent")
-	rateLimit, err := MetaRateLimitFunc(obj)
-	if err != nil {
-		glog.V(4).Info(err)
-	}
-	glog.V(4).Infof("ratelimited?: %v", rateLimit)
-	if rateLimit {
-		return
-	}
 	p.populated = true
 	pq := p.queue
 	//here's where the map is important...
@@ -471,7 +485,7 @@ func (p *Priority) addIfNotPresent(key string, obj interface{}) {
 
 
 // Helper Functions
-const annotationKey = "k8s_priority"
+const annotationKey = "dronedeploy.com/priority"
 
 // MetaPriorityFunc
 // extracts the priority annotation of an object

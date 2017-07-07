@@ -546,11 +546,7 @@ func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, pod
 				pod, err := factory.client.Core().Pods(podID.Namespace).Get(podID.Name, metav1.GetOptions{})
 				if err == nil {
 					if len(pod.Spec.NodeName) == 0 {
-						rateLimitAnnotation, exists := pod.GetAnnotations()[rateLimitAnnotationKey]
-						glog.V(4).Infof("rateLimitAnnotation: %v", rateLimitAnnotation)
-						if rateLimitAnnotation != "true" || !exists {
-							podQueue.AddIfNotPresent(pod)
-						}
+						podQueue.AddIfNotPresent(pod)
 					}
 					break
 				}
