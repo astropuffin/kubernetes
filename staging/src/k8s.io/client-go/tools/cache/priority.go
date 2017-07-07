@@ -171,6 +171,8 @@ func (pq PriorityQueue) Swap(i, j int) {
 // adds an item to the queue. Used by the heap function. Do not use this
 // outside heap.Push!
 func (pq *PriorityQueue) Push(obj interface{}) {
+	//debug
+	_, _ = MetaRateLimitFunc(obj)
 	key, _ := pq.keyFunc(obj)
 	priority, _ := MetaPriorityFunc(obj)
 	n := pq.Len()
@@ -535,9 +537,11 @@ func MetaRateLimitFunc(obj interface{}) (bool, error) {
 	if rl, ok := annotations[rateLimitAnnotationKey]; ok {
 		glog.V(4).Infof("rateLimit annotation: '%v'", rl)
 		if rl == "true" {
+			glog.V(4).Infof("not rateLimiting %v", thing.GetName())
 			return true, nil
 		}
 	}
+	glog.V(4).Infof("rateLimiting %v", thing.GetName())
 	return false, nil
 }
 
