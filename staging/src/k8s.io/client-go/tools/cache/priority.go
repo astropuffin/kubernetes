@@ -238,6 +238,7 @@ func (p *Priority) Update(obj interface{}) error {
 		pq.items[key] = obj
 		//the item is already indexed, but might need a new priority
 		index, _ := pq.GetPlaceInQueue(key)
+		_, _ = MetaRateLimitFunc(obj)
 		priority, _ := MetaPriorityFunc(obj)
 
 		pq.queue[index].priority = priority
