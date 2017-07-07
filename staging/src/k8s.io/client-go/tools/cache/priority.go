@@ -436,8 +436,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		// add rate limited pods back into the priority queue
 		for pod, _ := range rateLimitedPods {
 			glog.V(4).Infof("ratelimited pod, adding back to queue: %v",pod)
-			key, _ := p.keyFunc(pod) //TODO: add error handling
-			p.addIfNotPresent(key, pod)
+			p.AddIfNotPresent(pod)
 		}
 
 		if p.initialPopulationCount > 0 {
@@ -449,8 +448,9 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		glog.V(4).Infof("item is: '%v'", item)
 		glog.V(4).Infof("requeue?: '%#v'", err)
 		if e, ok := err.(ErrRequeue); ok {
-			key, _ := p.keyFunc(item) //TODO: add error handling
-			p.addIfNotPresent(key, item)
+			//key, _ := p.keyFunc(item) //TODO: add error handling
+			//p.addIfNotPresent(key, item)
+			p.AddIfNotPresent(item)
 			err = e.Err
 		}
 		return item, err
