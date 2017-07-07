@@ -26,6 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"strconv"
+	"k8s.io/kubernetes/pkg/api/v1/helper"
 )
 
 var PriorityClosedError error = errors.New("DeltaPriority: manipulating with closed queue")
@@ -412,6 +413,9 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		var rateLimitedPods []interface{}
 		//pop pods from the heap until we find one that isn't rateLimited
 		for {
+			if p.queue.Len() == 0 {
+				break
+			}
 			item = heap.Pop(p.queue)
 
 			rateLimited, err := MetaRateLimitFunc(item)
