@@ -195,7 +195,7 @@ func (pq *PriorityQueue) Pop() interface{} {
 	n := len(old)
 	pk := old[n-1]
 	item := pq.items[pk.key]
-	glog.V(4).Info("priority pop")
+	glog.V(4).Infof("priority pop: %v", item)
 	glog.V(4).Infof("current queue %#v", pq.items)
 
 	//delete from map and array
@@ -481,6 +481,7 @@ func (p *Priority) AddIfNotPresent(obj interface{}) error {
 // addIfNotPresent
 // this is the non syncronized form. It should always be called under lock
 func (p *Priority) addIfNotPresent(key string, obj interface{}) {
+	glog.V(4).Infof("addIfNotPresent -- key: %v, value %v",key, obj)
 	p.populated = true
 	pq := p.queue
 	//here's where the map is important...
