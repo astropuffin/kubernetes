@@ -461,6 +461,7 @@ func (f *ConfigFactory) Run() {
 
 func (f *ConfigFactory) getNextPod() *v1.Pod {
 	for {
+		glog.V(4).Info("grabbing next pod factory.getNextPod")
 		pod := cache.Pop(f.podQueue).(*v1.Pod)
 		if f.ResponsibleForPod(pod) {
 			glog.V(4).Infof("About to try and schedule pod %v", pod.Name)
