@@ -441,6 +441,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 
 		err := process(item)
 		//TODO: this never returns anything but nil currently...
+		glog.V(4).Infof("item is: '%v'", item)
 		glog.V(4).Infof("requeue?: '%#v'", err)
 		if e, ok := err.(ErrRequeue); ok {
 			key, _ := p.keyFunc(item) //TODO: add error handling
