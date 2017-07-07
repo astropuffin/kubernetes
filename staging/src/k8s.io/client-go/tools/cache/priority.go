@@ -426,6 +426,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			}
 			glog.V(4).Infof("ratelimited?: %v", rateLimited)
 			if rateLimited {
+				glog.V(4).Infof("ratelimited pod, temporarily removing from queue: %v",item)
 				rateLimitedPods = append(rateLimitedPods, item)
 			} else {
 				break
@@ -434,6 +435,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 
 		// add rate limited pods back into the priority queue
 		for pod, _ := range rateLimitedPods {
+			glog.V(4).Infof("ratelimited pod, adding back to queue: %v",pod)
 			key, _ := p.keyFunc(pod) //TODO: add error handling
 			p.addIfNotPresent(key, pod)
 		}
@@ -539,11 +541,11 @@ func MetaRateLimitFunc(obj interface{}) (bool, error) {
 	if rl, ok := annotations[rateLimitAnnotationKey]; ok {
 		glog.V(4).Infof("rateLimit annotation: '%v'", rl)
 		if rl == "true" {
-			glog.V(4).Infof("not rateLimiting %v", thing.GetName())
+			glog.V(4).Infof("rateLimiting %v", thing.GetName())
 			return true, nil
 		}
 	}
-	glog.V(4).Infof("rateLimiting %v", thing.GetName())
+	glog.V(4).Infof("not rateLimiting %v", thing.GetName())
 	return false, nil
 }
 
