@@ -412,8 +412,8 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		var rateLimitedPods []interface{}
 		//pop pods from the heap until we find one that isn't rateLimited
 		for {
-			if p.queue.Len() == 0 {
-				break
+			for p.queue.Len() == 0 {
+				p.cond.Wait()
 			}
 			item = heap.Pop(p.queue)
 
