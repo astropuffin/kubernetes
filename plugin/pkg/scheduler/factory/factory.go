@@ -140,7 +140,7 @@ func NewConfigFactory(
 	scheduledPodIndexer, c.scheduledPodPopulator = cache.NewIndexerInformer(
 		c.createAssignedNonTerminatedPodLW(),
 		&v1.Pod{},
-		0,
+		1000 * 1000 * 1000 * 10, //every 10 seconds
 		cache.ResourceEventHandlerFuncs{
 			AddFunc:    c.addPodToCache,
 			UpdateFunc: c.updatePodInCache,
