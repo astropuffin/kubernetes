@@ -434,7 +434,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 
 		// add rate limited pods back into the priority queue
 		for pod, _ := range rateLimitedPods {
-			key, _ := p.keyFunc(item) //TODO: add error handling
+			key, _ := p.keyFunc(pod) //TODO: add error handling
 			p.addIfNotPresent(key, pod)
 		}
 
