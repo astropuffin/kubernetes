@@ -467,6 +467,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 // syncronized wrapper for addIfNotPresent. It also derives the key
 // in order to avoid unneccessary locks
 func (p *Priority) AddIfNotPresent(obj interface{}) error {
+	panic("here")
 	key, err := p.keyFunc(obj)
 	if err != nil {
 		return KeyError{obj, err}
