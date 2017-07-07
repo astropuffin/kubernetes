@@ -26,7 +26,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"strconv"
-	"k8s.io/kubernetes/pkg/api/v1/helper"
 )
 
 var PriorityClosedError error = errors.New("DeltaPriority: manipulating with closed queue")
