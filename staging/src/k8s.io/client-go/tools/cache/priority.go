@@ -156,7 +156,7 @@ func (pq PriorityQueue) GetPlaceInQueue(key string) (int, error) {
 // returns the length of the queue
 func (pq PriorityQueue) Len() int {
 	trace()
-	glog.V(4).Infof("priorityqueue.Len: %v", string(debug.Stack()[:]))
+	glog.V(5).Infof("priorityqueue.Len: %v", string(debug.Stack()[:]))
 	return len(pq.queue)
 }
 
@@ -362,7 +362,7 @@ func (p *Priority) GetByKey(key string) (item interface{}, exists bool, err erro
 
 func (p *Priority) IsClosed() bool {
 	trace()
-	glog.V(4).Info("priority.IsClosed")
+	glog.V(5).Info("priority.IsClosed")
 	p.closedLock.Lock()
 	defer p.closedLock.Unlock()
 	if p.closed {
