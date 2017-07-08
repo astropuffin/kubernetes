@@ -468,6 +468,7 @@ func (f *ConfigFactory) getNextPod() *v1.Pod {
 			return nil //this is really dumb, but have to give it a function cause that's how the interface works. legacy?
 		})
 		if i == nil {
+			time.Sleep(2 * time.Second)
 			continue
 		}
 		pod := i.(*v1.Pod)
