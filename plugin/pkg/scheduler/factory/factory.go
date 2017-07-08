@@ -462,6 +462,7 @@ func (f *ConfigFactory) Run() {
 func (f *ConfigFactory) getNextPod() *v1.Pod {
 	glog.V(4).Info("grabbing next pod factory.getNextPod")
 	for {
+		time.Sleep(1 * time.Second)
 		glog.V(4).Info("factory.getNextPod loop")
 		//pod := cache.Pop(f.podQueue).(*v1.Pod)
 		i, _ := f.podQueue.Pop(func(obj interface{}) error {
