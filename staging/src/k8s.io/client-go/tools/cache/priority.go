@@ -449,6 +449,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		// When the queue is empty, invocation of Pop() is blocked until new item is enqueued.
 		// When Close() is called, the p.closed is set and the condition is broadcasted.
 		// Which causes this loop to continue and return from the Pop().
+		glog.V(4).Info("inside priority.pop loop")
 		if p.IsClosed() {
 			return nil, PriorityClosedError
 		}
