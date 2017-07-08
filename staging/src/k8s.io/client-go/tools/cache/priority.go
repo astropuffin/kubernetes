@@ -467,7 +467,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			}
 			item_inner := heap.Pop(p.queue)
 
-			rateLimited, err := MetaRateLimitFunc(item)
+			rateLimited, err := MetaRateLimitFunc(item_inner)
 			if err != nil {
 				glog.V(4).Info(err)
 			}
