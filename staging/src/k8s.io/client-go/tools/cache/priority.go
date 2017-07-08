@@ -453,8 +453,8 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			return nil, PriorityClosedError
 		}
 
-		for p.queue.Len() == 0 {
-			p.cond.Wait()
+		if p.queue.Len() == 0 {
+			break
 		}
 
 		var item interface{}
