@@ -455,7 +455,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		}
 
 		if p.queue.Len() == 0 {
-			break
+			return nil, nil
 		}
 
 		var item interface{}
@@ -465,7 +465,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			if p.queue.Len() == 0 {
 				break
 			}
-			item = heap.Pop(p.queue)
+			item_inner := heap.Pop(p.queue)
 
 			rateLimited, err := MetaRateLimitFunc(item)
 			if err != nil {
@@ -475,8 +475,8 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			if rateLimited {
 				glog.V(4).Infof("ratelimited pod, temporarily removing from queue: %v",item)
 				rateLimitedPods = append(rateLimitedPods, item)
-				item = nil
 			} else {
+				item = item_inner
 				break
 			}
 		}
