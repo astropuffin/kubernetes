@@ -89,8 +89,7 @@ var (
 )
 
 func (p *Priority) Close() {
-	trace()
-	glog.V(4).Infof("priority.Close: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	p.closedLock.Lock()
 	defer p.closedLock.Unlock()
 	p.closed = true
@@ -101,8 +100,7 @@ func (p *Priority) Close() {
 // returns true if an Add/Update/Delete/AddIfNotPresent are called first,
 // or an Update called first but the first batch of items inserted by Replace() has been popped
 func (p *Priority) HasSynced() bool {
-	trace()
-	glog.V(4).Infof("priority.HasSynced: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	return p.populated && p.initialPopulationCount == 0
@@ -113,8 +111,7 @@ func (p *Priority) HasSynced() bool {
 // New PriorityQueue returns a struct that can be used to store items
 // to be retrieved in priority order
 func NewPriorityQueue(keyFunc KeyFunc) *PriorityQueue {
-	trace()
-	glog.V(4).Infof("NewPriorityQueue: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	pq := &PriorityQueue{
 		items:   map[string]interface{}{},
 		queue:   []PriorityKey{},
@@ -127,8 +124,7 @@ func NewPriorityQueue(keyFunc KeyFunc) *PriorityQueue {
 // NewPriority returns a Store which can be used to queue up items to
 // process.
 func NewPriority(keyFunc KeyFunc) *Priority {
-	trace()
-	glog.V(4).Infof("NewPriority: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	p := &Priority{
 		queue:   NewPriorityQueue(keyFunc),
 		keyFunc: keyFunc, //TODO: is this needed here?
@@ -140,8 +136,7 @@ func NewPriority(keyFunc KeyFunc) *Priority {
 
 // Helper Methods
 func (pq PriorityQueue) GetPlaceInQueue(key string) (int, error) {
-	trace()
-	glog.V(4).Infof("priorityqueue.GetPlaceInQueue: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	for i, pk := range pq.queue {
 		if pk.key == key {
 			return i, nil
@@ -155,8 +150,7 @@ func (pq PriorityQueue) GetPlaceInQueue(key string) (int, error) {
 // Len
 // returns the length of the queue
 func (pq PriorityQueue) Len() int {
-	//trace()
-	glog.V(5).Infof("priorityqueue.Len: %v", string(debug.Stack()[:]))
+	glog.V(5).Infof(trace())
 	return len(pq.queue)
 }
 
@@ -164,24 +158,21 @@ func (pq PriorityQueue) Len() int {
 // compares the relative priority of two items in the queue and
 // for a priority queue, less is more
 func (pq PriorityQueue) Less(i, j int) bool {
-	trace()
-	glog.V(4).Infof("priorityqueue.Less: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	//Pop should give us the highest priority item
 	return pq.more(i, j)
 }
 
 // more
 func (pq PriorityQueue) more(i, j int) bool {
-	trace()
-	glog.V(4).Infof("priorityqueue.more: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	return pq.queue[i].priority > pq.queue[j].priority
 }
 
 // Swap
 // switches the position of two items in the queue
 func (pq PriorityQueue) Swap(i, j int) {
-	trace()
-	glog.V(4).Infof("priorityqueue.Swap: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	pq.queue[i], pq.queue[j] = pq.queue[j], pq.queue[i]
 	pq.queue[i].index = i
 	pq.queue[j].index = j
@@ -191,8 +182,7 @@ func (pq PriorityQueue) Swap(i, j int) {
 // adds an item to the queue. Used by the heap function. Do not use this
 // outside heap.Push!
 func (pq *PriorityQueue) Push(obj interface{}) {
-	trace()
-	glog.V(4).Infof("priorityqueue.Push: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	//debug
 	_, _ = MetaRateLimitFunc(obj)
 	key, _ := pq.keyFunc(obj)
@@ -212,8 +202,7 @@ func (pq *PriorityQueue) Push(obj interface{}) {
 // grabs the highest priority item from the queue, returns and deletes it
 // Do not use outside of heap.Pop!
 func (pq *PriorityQueue) Pop() interface{} {
-	trace()
-	glog.V(4).Infof("priorityqueue.Pop: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	//grab the queue
 	old := pq.queue
 	n := len(old)
@@ -244,8 +233,7 @@ func (pq *PriorityQueue) Pop() interface{} {
 // inserts an item, and puts it in the queue. The item is only enqueued
 // if it doesn't already exist in the set.
 func (p *Priority) Add(obj interface{}) error {
-	trace()
-	glog.V(4).Infof("priority.Add: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	return p.AddIfNotPresent(obj)
 }
 
@@ -256,8 +244,7 @@ func (p *Priority) Add(obj interface{}) error {
 // GetNamespace() and GetLabels(), so it should be safe to update anything
 // else.
 func (p *Priority) Update(obj interface{}) error {
-	trace()
-	glog.V(4).Infof("priority.Update: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	key, err := p.keyFunc(obj)
 	pq := p.queue
 
@@ -283,8 +270,7 @@ func (p *Priority) Update(obj interface{}) error {
 // Delete removes an item from anywhere in the queue
 // TODO: move the bulk of this to the PriorityQueue object
 func (p *Priority) Delete(obj interface{}) error {
-	trace()
-	glog.V(4).Infof("priority.Delete: %v", string(debug.Stack()[:]))
+	glog.V(4).Infof(trace())
 	key, err := p.keyFunc(obj)
 	if err != nil {
 		return KeyError{obj, err}
@@ -307,8 +293,7 @@ func (p *Priority) Delete(obj interface{}) error {
 // List
 // List returns an array of all the items in priority order
 func (p *Priority) List() []interface{} {
-	trace()
-	glog.V(4).Info("priority.List")
+	glog.V(4).Infof(trace())
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 	pq := p.queue
@@ -324,8 +309,7 @@ func (p *Priority) List() []interface{} {
 // ListKeys returns a list of all the keys of the objects currently
 // in the Priority. This is NOT sorted by priority. //TODO: Should it be?
 func (p *Priority) ListKeys() []string {
-	trace()
-	glog.V(4).Info("priority.ListKeys")
+	glog.V(4).Infof(trace())
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 	pq := p.queue
@@ -339,8 +323,7 @@ func (p *Priority) ListKeys() []string {
 // Get
 // Get returns the requested item, or sets exists=false.
 func (p *Priority) Get(obj interface{}) (item interface{}, exists bool, err error) {
-	trace()
-	glog.V(4).Info("priority.Get")
+	glog.V(4).Infof(trace())
 	key, err := p.keyFunc(obj)
 	if err != nil {
 		return nil, false, KeyError{obj, err}
@@ -351,8 +334,7 @@ func (p *Priority) Get(obj interface{}) (item interface{}, exists bool, err erro
 // GetByKey
 // GetByKey returns the requested item, or sets exists=false.
 func (p *Priority) GetByKey(key string) (item interface{}, exists bool, err error) {
-	trace()
-	glog.V(4).Info("priority.GetByKey")
+	glog.V(4).Infof(trace())
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 	pq := p.queue
@@ -361,8 +343,7 @@ func (p *Priority) GetByKey(key string) (item interface{}, exists bool, err erro
 }
 
 func (p *Priority) IsClosed() bool {
-	//trace()
-	glog.V(5).Info("priority.IsClosed")
+	glog.V(5).Infof(trace())
 	p.closedLock.Lock()
 	defer p.closedLock.Unlock()
 	if p.closed {
@@ -377,8 +358,7 @@ func (p *Priority) IsClosed() bool {
 // after calling this function. p's queue is reset, too; upon return, it
 // will contain the items in the map, in priority order.
 func (p *Priority) Replace(list []interface{}, resourceVersion string) error {
-	trace()
-	glog.V(4).Info("priority.Replace")
+	glog.V(4).Infof(trace())
 
 	pq := NewPriorityQueue(p.keyFunc)
 	for _, item := range list {
@@ -406,8 +386,7 @@ func (p *Priority) Replace(list []interface{}, resourceVersion string) error {
 // it currently doesn't check if all items in the queue are in the map, so
 // there could be dangling items in the queue... //TODO
 func (p *Priority) Resync() error {
-	trace()
-	glog.V(4).Info("priority.Rsync")
+	glog.V(4).Infof(trace())
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
@@ -441,8 +420,7 @@ func (p *Priority) Resync() error {
 // AddIfNotPresent(). process function is called under lock, so it is safe
 // update data structures in it that need to be in sync with the queue.
 func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
-	trace()
-	glog.V(4).Info("priority.Pop")
+	glog.V(4).Infof(trace())
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	for { //what is this forever loop for? To cycle through items until one is ready?
@@ -520,8 +498,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 // syncronized wrapper for addIfNotPresent. It also derives the key
 // in order to avoid unneccessary locks
 func (p *Priority) AddIfNotPresent(obj interface{}) error {
-	trace()
-	glog.V(4).Info("priority.AddIfNotPresent")
+	glog.V(4).Infof(trace())
 	key, err := p.keyFunc(obj)
 	if err != nil {
 		return KeyError{obj, err}
@@ -538,8 +515,7 @@ func (p *Priority) AddIfNotPresent(obj interface{}) error {
 // addIfNotPresent
 // this is the non syncronized form. It should always be called under lock
 func (p *Priority) addIfNotPresent(key string, obj interface{}) {
-	trace()
-	glog.V(4).Info("priority.addIfNotPresent")
+	glog.V(4).Infof(trace())
 	glog.V(4).Infof("addIfNotPresent -- key: %v, value %v",key, obj)
 	p.populated = true
 	pq := p.queue
@@ -560,8 +536,7 @@ const annotationKey = "dronedeploy.com/priority"
 // The object must be a pointer of a valid API type
 // TODO: make this allow non-pod objects
 func MetaPriorityFunc(obj interface{}) (int, error) {
-	trace()
-	glog.V(4).Info("MetaPriorityFunc")
+	glog.V(4).Infof(trace())
 	thing, err := meta.Accessor(obj)
 	if err != nil {
 		return -1, fmt.Errorf("object has no meta: %v", err)
@@ -589,8 +564,7 @@ const rateLimitAnnotationKey = "dronedeploy.com/rateLimit"
 // The object must be a pointer of a valid API type
 // TODO: make this allow non-pod objects
 func MetaRateLimitFunc(obj interface{}) (bool, error) {
-	trace()
-	glog.V(4).Info("MetaRateLimitFunc")
+	glog.V(4).Infof(trace())
 	thing, err := meta.Accessor(obj)
 	if err != nil {
 		return false, fmt.Errorf("object has no meta: %v", err)
@@ -610,12 +584,12 @@ func MetaRateLimitFunc(obj interface{}) (bool, error) {
 	return false, nil
 }
 
-func trace() {
+func trace() string {
 	pc := make([]uintptr, 10)  // at least 1 entry needed
-	runtime.Callers(2, pc)
+	runtime.Callers(1, pc)
 	f := runtime.FuncForPC(pc[0])
 	file, line := f.FileLine(pc[0])
-	fmt.Printf("%s:%d %s\n", file, line, f.Name())
+	return fmt.sprintf("%s:%d %s\n", file, line, f.Name())
 }
 
 // There are a number of objects pulled from other files in the package. Here
