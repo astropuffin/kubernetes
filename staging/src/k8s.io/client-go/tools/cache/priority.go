@@ -27,7 +27,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"strconv"
 	"runtime"
-	"runtime/debug"
 )
 
 var PriorityClosedError error = errors.New("DeltaPriority: manipulating with closed queue")
@@ -589,7 +588,7 @@ func trace() string {
 	runtime.Callers(1, pc)
 	f := runtime.FuncForPC(pc[0])
 	file, line := f.FileLine(pc[0])
-	return fmt.sprintf("%s:%d %s\n", file, line, f.Name())
+	return fmt.Sprintf("%s:%d %s\n", file, line, f.Name())
 }
 
 // There are a number of objects pulled from other files in the package. Here
