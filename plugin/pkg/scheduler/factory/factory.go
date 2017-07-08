@@ -140,7 +140,7 @@ func NewConfigFactory(
 	scheduledPodIndexer, c.scheduledPodPopulator = cache.NewIndexerInformer(
 		c.createAssignedNonTerminatedPodLW(),
 		&v1.Pod{},
-		1000 * 1000 * 1000 * 10, //every 10 seconds
+		1000 * 1000 * 1000 * 1, //every 1 seconds
 		cache.ResourceEventHandlerFuncs{
 			AddFunc:    c.addPodToCache,
 			UpdateFunc: c.updatePodInCache,
@@ -526,8 +526,6 @@ func (factory *ConfigFactory) createAssignedNonTerminatedPodLW() *cache.ListWatc
 	selector := fields.ParseSelectorOrDie("spec.nodeName!=" + "" + ",status.phase!=" + string(v1.PodSucceeded) + ",status.phase!=" + string(v1.PodFailed))
 	return cache.NewListWatchFromClient(factory.client.Core().RESTClient(), "pods", metav1.NamespaceAll, selector)
 }
-
-const rateLimitAnnotationKey = "dronedeploy.com/rateLimit"
 
 func (factory *ConfigFactory) MakeDefaultErrorFunc(backoff *util.PodBackoff, podQueue *cache.Priority) func(pod *v1.Pod, err error) {
 	return func(pod *v1.Pod, err error) {
