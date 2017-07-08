@@ -462,7 +462,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		//pop pods from the heap until we find one that isn't rateLimited
 		for {
 			for p.queue.Len() == 0 {
-				p.cond.Wait()
+				break
 			}
 			item = heap.Pop(p.queue)
 
@@ -474,6 +474,7 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 			if rateLimited {
 				glog.V(4).Infof("ratelimited pod, temporarily removing from queue: %v",item)
 				rateLimitedPods = append(rateLimitedPods, item)
+				item = nil
 			} else {
 				break
 			}
@@ -483,6 +484,11 @@ func (p *Priority) Pop(process PopProcessFunc) (interface{}, error) {
 		for pod, _ := range rateLimitedPods {
 			glog.V(4).Infof("ratelimited pod, adding back to queue: %v",pod)
 			p.AddIfNotPresent(pod)
+		}
+
+		//if we went through the whole list and only found rateLimited pods, go back for another loop
+		if item == nil {
+			continue
 		}
 
 		if p.initialPopulationCount > 0 {
