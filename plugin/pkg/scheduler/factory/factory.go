@@ -473,7 +473,7 @@ func (f *ConfigFactory) getNextPod() *v1.Pod {
 		}
 		pod := i.(*v1.Pod)
 		if f.ResponsibleForPod(pod) {
-			time.Sleep(10 * time.Second)
+			time.Sleep(1 * time.Second)
 			glog.V(4).Infof("About to try and schedule pod %v", pod.Name)
 			return pod
 		}
