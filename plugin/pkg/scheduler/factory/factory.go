@@ -460,8 +460,9 @@ func (f *ConfigFactory) Run() {
 }
 
 func (f *ConfigFactory) getNextPod() *v1.Pod {
+	glog.V(4).Info("grabbing next pod factory.getNextPod")
 	for {
-		glog.V(4).Info("grabbing next pod factory.getNextPod")
+		glog.V(4).Info("factory.getNextPod loop")
 		//pod := cache.Pop(f.podQueue).(*v1.Pod)
 		i, _ := f.podQueue.Pop(func(obj interface{}) error {
 			return nil //this is really dumb, but have to give it a function cause that's how the interface works. legacy?
